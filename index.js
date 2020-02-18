@@ -1,15 +1,16 @@
 const store = {
   items: [
-    { id: cuid(), name: 'apples', checked: false },
-    { id: cuid(), name: 'oranges', checked: false },
-    { id: cuid(), name: 'milk', checked: true },
-    { id: cuid(), name: 'bread', checked: false }
+    { id: cuid(), name: 'apples', checked: false, isEditing: false },
+    { id: cuid(), name: 'oranges', checked: false, isEditing: false },
+    { id: cuid(), name: 'milk', checked: true, isEditing: false },
+    { id: cuid(), name: 'bread', checked: false, isEditing: false }
   ],
   hideCheckedItems: false
 };
 
 const generateItemElement = function (item) {
   let itemTitle = `<span class='shopping-item shopping-item__checked'>${item.name}</span>`;
+  let itemEditForm= `<form class='shopping-item-edit-form'><input type='text'></input></form>`
   if (!item.checked) {
     itemTitle = `
      <span class='shopping-item'>${item.name}</span>
@@ -26,6 +27,10 @@ const generateItemElement = function (item) {
         <button class='shopping-item-delete js-item-delete'>
           <span class='button-label'>delete</span>
         </button>
+        <button class='shopping-item-edit js-item-edit'>
+          <span class='button-label'>edit</span>
+        </button>
+        ${item.isEditing ? itemEditForm : ''}
       </div>
     </li>`;
 };
@@ -63,7 +68,7 @@ const render = function () {
 };
 
 const addItemToShoppingList = function (itemName) {
-  store.items.push({ id: cuid(), name: itemName, checked: false });
+  store.items.push({ id: cuid(), name: itemName, checked: false, isEditing: false });
 };
 
 const handleNewItemSubmit = function () {
@@ -114,6 +119,12 @@ const deleteListItem = function (id) {
   store.items.splice(index, 1);
 };
 
+const editListItem = function (id) {
+  const index = store.items.findIndex(item => item.id === id);
+  //let itemEdit = 
+  //store.items.
+};
+
 const handleDeleteItemClicked = function () {
   // Like in `handleItemCheckClicked`, 
   // we use event delegation.
@@ -134,6 +145,11 @@ const toggleCheckedItemsFilter = function () {
   store.hideCheckedItems = !store.hideCheckedItems;
 };
 
+const adjustIsEditting = function (id) {
+  const foundItem = store.items.find(item => item.id === id);
+  foundItem.isEditing = true;
+}
+
 /**
  * Places an event listener on the checkbox 
  * for hiding completed items.
@@ -144,6 +160,21 @@ const handleToggleFilterClick = function () {
     render();
   });
 };
+
+const handleEditItemClick = function() {
+  $('.js-shopping-list').on('click', '.js-item-edit', event => {
+    const id = getItemIdFromElement(event.currentTarget);
+    adjustIsEditting(id);
+    render();
+  });
+};
+
+const adjustForm = function (){
+  $('.itemEditForm').on('submit', event => {
+    event.preventDefault();
+    
+  })
+}
 
 /**
  * This function will be our callback when the
@@ -160,7 +191,9 @@ const handleShoppingList = function () {
   handleItemCheckClicked();
   handleDeleteItemClicked();
   handleToggleFilterClick();
+  handleEditItemClick();
 };
 
 // when the page loads, call `handleShoppingList`
 $(handleShoppingList);
+
